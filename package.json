@@ -1,0 +1,24 @@
+{
+  "name": "microfrontend-react",
+  "version": "1.0.0",
+  "description": "Microfrontend using React 19 and Webpack Module Federation",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "concurrently \"npm run start:host\" \"npm run start:app1\"",
+    "start:host": "cd packages/host-app && npm start",
+    "start:app1": "cd packages/app1 && npm start",
+    "build": "npm run build:app1 && npm run build:host",
+    "build:host": "cd packages/host-app && npm run build",
+    "build:app1": "cd packages/app1 && npm run build",
+    "install:all": "npm install && cd packages/host-app && npm install && cd ../app1 && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
