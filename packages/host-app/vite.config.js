@@ -11,7 +11,7 @@ export default defineConfig({
         'user-list-app': 'http://localhost:3001/assets/remoteEntry.js',
         'user-details-app': 'http://localhost:3002/assets/remoteEntry.js'
       },
-      shared: ['react', 'react-dom', 'react-router-dom']
+      shared: ['react', 'react-dom', 'react-router-dom', 'pubsub-js']
     })
   ],
   server: {

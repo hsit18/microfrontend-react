@@ -13,6 +13,7 @@ This project consists of three main applications:
 ## 🚀 Features
 
 - **Module Federation**: Seamless integration between microfrontends using `@originjs/vite-plugin-federation`
+- **Pub/Sub Communication**: Type-safe event communication between microfrontends using `pubsub-js`
 - **React Router**: Client-side routing with navigation support
 - **Tailwind CSS**: Modern, responsive UI design
 - **Error Boundaries**: Graceful error handling for each microfrontend
@@ -21,6 +22,7 @@ This project consists of three main applications:
 - **Search Functionality**: Filter users by name, email, or role
 - **Status Indicators**: Visual status indicators for users
 - **Tabbed Interface**: Organized user information display
+- **Cross-App Communication**: Real-time data synchronization between microfrontends
 
 ## 📦 Project Structure
 
@@ -160,7 +162,7 @@ federation({
     'user-list-app': 'http://localhost:3001/remoteEntry.js',
     'user-details-app': 'http://localhost:3002/remoteEntry.js'
   },
-  shared: ['react', 'react-dom', 'react-router-dom']
+  shared: ['react', 'react-dom', 'react-router-dom', 'pubsub-js']
 })
 ```
 
@@ -172,15 +174,59 @@ federation({
   exposes: {
     './UserListApp': './src/UserListApp.jsx'
   },
-  shared: ['react', 'react-dom']
+  shared: ['react', 'react-dom', 'pubsub-js']
 })
 ```
 
+### Pub/Sub Communication System
+
+The host app exposes a global pub/sub system on `window.MFE_PubSub` that enables type-safe communication between microfrontends:
+
+**Type Definitions** (`types/pubsub.ts`):
+```typescript
+export interface PubSubEvents {
+  'user.selected': { userId: number; userData?: any }
+  'user.updated': { userId: number; userData: any }
+  'navigation.change': { path: string; params?: Record<string, any> }
+  'navigation.back': { previousPath?: string }
+  'app.loaded': { appName: string; timestamp: number }
+  'app.error': { appName: string; error: Error | string }
+  'data.refresh': { source: string; timestamp: number }
+  'data.cache.clear': { scope?: string }
+}
+```
+
+**Usage in Microfrontends**:
+```javascript
+// Subscribe to events
+const token = window.MFE_PubSub.subscribe('user.selected', (data) => {
+  console.log('User selected:', data.userId)
+})
+
+// Publish events
+window.MFE_PubSub.publish('user.selected', {
+  userId: 123,
+  userData: userObject
+})
+
+// Cleanup
+window.MFE_PubSub.unsubscribe(token)
+```
+
+### Event Types
+
+- **`user.selected`**: Triggered when a user is selected in the user list
+- **`user.updated`**: Triggered when user data is modified
+- **`navigation.change`**: Triggered on route changes
+- **`navigation.back`**: Triggered for back navigation
+- **`app.loaded`**: Triggered when a microfrontend finishes loading
+- **`data.refresh`**: Triggered to refresh data across all apps
+
 ### Shared Dependencies
 
-All applications share React and React-DOM to ensure consistency:
+All applications share React, React-DOM, and PubSub-JS to ensure consistency:
 ```javascript
-shared: ['react', 'react-dom', 'react-router-dom']
+shared: ['react', 'react-dom', 'react-router-dom', 'pubsub-js']
 ```
 
 ## 🎛️ Development Scripts

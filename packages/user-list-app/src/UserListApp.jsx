@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { PubSubUtils } from './utils/pubsub'
 
 // Mock users data
 const mockUsers = [
@@ -54,8 +55,46 @@ function UserListApp({ onUserSelect }) {
     setTimeout(() => {
       setUsers(mockUsers)
       setLoading(false)
+      
+      // Publish app loaded event
+      if (window.MFE_PubSub) {
+        window.MFE_PubSub.publish('app.loaded', {
+          appName: 'user-list-app',
+          timestamp: Date.now()
+        })
+      }
     }, 1000)
+
+    // Subscribe to data refresh events
+    const refreshToken = PubSubUtils.subscribeToDataRefresh((data) => {
+      console.log('[UserList] Data refresh requested:', data)
+      // Simulate refetching data
+      setLoading(true)
+      setTimeout(() => {
+        setUsers(mockUsers)
+        setLoading(false)
+      }, 500)
+    })
+
+    // Publish app loaded event
+    PubSubUtils.publishAppLoaded()
+
+    return () => {
+      if (refreshToken) {
+        PubSubUtils.unsubscribe(refreshToken)
+      }
+    }
   }, [])
+
+  const handleUserClick = (user) => {
+    // Use pub/sub utility to communicate user selection
+    PubSubUtils.publishUserSelected(user.id, user)
+    
+    // Also call the callback prop for backward compatibility
+    if (onUserSelect) {
+      onUserSelect(user.id)
+    }
+  }
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,7 +147,7 @@ function UserListApp({ onUserSelect }) {
           <div
             key={user.id}
             className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 cursor-pointer border border-gray-200"
-            onClick={() => onUserSelect && onUserSelect(user.id)}
+            onClick={() => handleUserClick(user)}
           >
             <div className="flex items-center space-x-4">
               <div className="relative">

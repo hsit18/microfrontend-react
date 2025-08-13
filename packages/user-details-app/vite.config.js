@@ -11,7 +11,7 @@ export default defineConfig({
       exposes: {
         './UserDetailsApp': './src/UserDetailsApp.jsx'
       },
-      shared: ['react', 'react-dom']
+      shared: ['react', 'react-dom', 'pubsub-js']
     })
   ],
   server: {
