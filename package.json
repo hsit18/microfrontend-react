@@ -1,0 +1,26 @@
+{
+  "name": "microfrontend-react",
+  "version": "1.0.0",
+  "description": "Microfrontend setup with React, Vite, and Tailwind CSS",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:host\" \"npm run dev:user-list\" \"npm run dev:user-details\"",
+    "dev:host": "npm run dev --workspace=host-app",
+    "dev:user-list": "npm run dev --workspace=user-list-app",
+    "dev:user-details": "npm run dev --workspace=user-details-app",
+    "build": "npm run build --workspaces",
+    "preview": "concurrently \"npm run preview:host\" \"npm run preview:user-list\" \"npm run preview:user-details\"",
+    "preview:host": "npm run preview --workspace=host-app",
+    "preview:user-list": "npm run preview --workspace=user-list-app",
+    "preview:user-details": "npm run preview --workspace=user-details-app"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
